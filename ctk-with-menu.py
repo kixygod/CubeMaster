@@ -23,30 +23,52 @@ class ScrambleGenerator:
         return scramble.strip()
 
 
-# class Card(customtkinter.CTk):
-#     def __init__(self, master, image_path, title, text):
-#         super().__init__()
+class Card(customtkinter.CTkFrame):
+    def __init__(self, master, image_name, text):
+        super().__init__(master)
+        rubik_path = os.path.join(os.path.dirname(
+            os.path.realpath(__file__)), "rubik")
+        self.image = customtkinter.CTkImage(light_image=Image.open(os.path.join(rubik_path, image_name)),
+                                            dark_image=Image.open(os.path.join(rubik_path, image_name)), size=(100, 100))
+        # self.label_image = tk.Label(self, image=self.image)
+        self.label_image = customtkinter.CTkButton(self.master, corner_radius=0, height=0, border_spacing=50, text=text, font=(tuple, 20),
+                                                   fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
+                                                   image=self.image, anchor="n")
+        self.label_image.pack()
 
-#         rubik_path = os.path.join(os.path.dirname(
-#             os.path.realpath(__file__)), "rubik")
 
-#         # Создаем место для фотографии
-#         self.image = customtkinter.CTkImage(
-#             Image.open(os.path.join(rubik_path, image_path)))
-#         # customtkinter.CTkImage(Image.open(os.path.join(image_path, "CustomTkinter_logo_single.png")), size=(26, 26))
-#         self.image_label = customtkinter.CTkImage(light_image=Image.open(os.path.join(self.image, image_path)),
-#                                                   dark_image=Image.open(os.path.join(self.image, image_path)), size=(30, 30))
-#         self.image_label.pack()
+class ScrollingFrame(tk.Frame):
+    def __init__(self, master, images):
+        super().__init__(master)
+        self.canvas = customtkinter.CTkCanvas(self)
+        self.scrollbar = customtkinter.CTkScrollbar(
+            self, command=self.canvas.yview)
+        self.scrollable_frame = customtkinter.CTkFrame(self.canvas)
 
-#         # Создаем заголовок
-#         self.title_label = customtkinter.CTkLabel(
-#             self, text=title, font=(tuple, 16, "bold"))
-#         self.title_label.pack(pady=10)
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(
+                scrollregion=self.canvas.bbox("all")
+            )
+        )
 
-#         # Создаем текст
-#         self.text_label = customtkinter.CTkLabel(
-#             self, text=text, font=(tuple, 12))
-#         self.text_label.pack()
+        self.canvas.create_window(
+            (0, 0), window=self.scrollable_frame, anchor="nw")
+
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        for image in images:
+            image_label = Card(
+                self.scrollable_frame, image["path"], image["text"])
+            # image_label.pack(pady=0)
+
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+
+    def _on_mousewheel(self, event):
+        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
 
 class App(customtkinter.CTk):
@@ -66,6 +88,7 @@ class App(customtkinter.CTk):
         # load images with light and dark mode image
         image_path = os.path.join(os.path.dirname(
             os.path.realpath(__file__)), "icons")
+
         self.logo_image = customtkinter.CTkImage(Image.open(os.path.join(
             image_path, "CustomTkinter_logo_single.png")), size=(26, 26))
 
@@ -145,8 +168,21 @@ class App(customtkinter.CTk):
         # create second frame
         self.second_frame = customtkinter.CTkFrame(
             self, corner_radius=0, fg_color="transparent")
-        # rur = Card(self.second_frame, "rur.png", "R U R'", "123")
-        # rur.pack()
+
+        self.images = [{
+            "path": "rur.png", "text": "R U R'"}, {
+            "path": "fuf.png", "text": "F' U' F"}, {
+            "path": "urur.png", "text": "U R U' R'"}, {
+            "path": "ufuf.png", "text": "U' F' U F"}, {
+            "path": "urururur.png", "text": "(U' R U') (R' U R) U R'"}, {
+            "path": "ufufufuf.png", "text": "(U F' U) (F U' F') U' F"}, {
+            "path": "urururur'.png", "text": "(U' R U) (R' U R) U R'"}, {
+            "path": "ufufufuf'.png", "text": "(U F' U') (F U' F') U' F"}, {
+            "path": "dru2rdrur.png", "text": "d (R' U2 R) d' (R U R')"}, {
+            "path": "uru2rdrur.png", "text": "U' (R U2 R') d (R' U' R)"}]
+
+        self.scrolling_frame = ScrollingFrame(self.second_frame, self.images)
+        self.scrolling_frame.pack(expand=True, fill="both")
 
         # create third frame
         self.third_frame = customtkinter.CTkFrame(
