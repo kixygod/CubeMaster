@@ -371,7 +371,6 @@ class App(customtkinter.CTk):
                 self.title_index += 1
             self.scrollable_label_button_frame.add_item(self.images[i][1], image=customtkinter.CTkImage(
                 Image.open(os.path.join(current_dir, "rubik", self.images[i][0])), size=(80, 80)))
-            print(i)
 
         # create third frame
         self.third_frame = customtkinter.CTkFrame(
