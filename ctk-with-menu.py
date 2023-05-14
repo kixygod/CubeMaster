@@ -29,9 +29,9 @@ class Card(customtkinter.CTkFrame):
         rubik_path = os.path.join(os.path.dirname(
             os.path.realpath(__file__)), "rubik")
         self.image = customtkinter.CTkImage(light_image=Image.open(os.path.join(rubik_path, image_name)),
-                                            dark_image=Image.open(os.path.join(rubik_path, image_name)), size=(100, 100))
+                                            dark_image=Image.open(os.path.join(rubik_path, image_name)), size=(60, 60))
         # self.label_image = tk.Label(self, image=self.image)
-        self.label_image = customtkinter.CTkButton(self.master, corner_radius=0, height=0, border_spacing=50, text=text, font=(tuple, 20),
+        self.label_image = customtkinter.CTkButton(self.master, corner_radius=0, height=0, border_spacing=10, text=text, font=(tuple, 20),
                                                    fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
                                                    image=self.image, anchor="n")
         self.label_image.pack()
