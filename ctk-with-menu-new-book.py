@@ -63,8 +63,8 @@ class App(customtkinter.CTk):
         self.title("CubeMaster")
         self.geometry("1280x720")
         self.minsize(1280, 720)
-        self.maxsize(1280, 720)
-        self.resizable(False, False)
+        # self.maxsize(1280, 720)
+        # self.resizable(False, False)
 
         # set grid layout 1x2
         self.grid_rowconfigure(0, weight=1)
