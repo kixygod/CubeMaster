@@ -23,20 +23,6 @@ class ScrambleGenerator:
         return scramble.strip()
 
 
-class Card(customtkinter.CTkFrame):
-    def __init__(self, master, image_name, text):
-        super().__init__(master)
-        rubik_path = os.path.join(os.path.dirname(
-            os.path.realpath(__file__)), "rubik")
-        self.image = customtkinter.CTkImage(light_image=Image.open(os.path.join(rubik_path, image_name)),
-                                            dark_image=Image.open(os.path.join(rubik_path, image_name)), size=(60, 60))
-        # self.label_image = tk.Label(self, image=self.image)
-        self.label_image = customtkinter.CTkButton(self.master, corner_radius=0, height=0, border_spacing=10, text=text, font=(tuple, 20),
-                                                   fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
-                                                   image=self.image, anchor="n")
-        self.label_image.pack()
-
-
 class ScrollableLabelButtonFrame(customtkinter.CTkScrollableFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
@@ -68,40 +54,6 @@ class ScrollableLabelButtonFrame(customtkinter.CTkScrollableFrame):
                 self.label_list.remove(label)
                 self.button_list.remove(button)
                 return
-
-
-class ScrollingFrame(customtkinter.CTkFrame):
-    def __init__(self, master, images):
-        super().__init__(master)
-        self.canvas = customtkinter.CTkCanvas(self)
-        self.scrollbar = customtkinter.CTkScrollbar(
-            self, command=self.canvas.yview)
-        self.scrollable_frame = customtkinter.CTkFrame(self.canvas)
-
-        self.scrollable_frame.bind(
-            "<Configure>",
-            lambda e: self.canvas.configure(
-                scrollregion=self.canvas.bbox("all")
-            )
-        )
-
-        self.canvas.create_window(
-            (0, 0), window=self.scrollable_frame, anchor="nw")
-
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
-
-        for image in images:
-            image_label = Card(
-                self.scrollable_frame, image["path"], image["text"])
-            # image_label.pack(pady=0)
-
-        self.canvas.pack(side="left", fill="both", expand=True)
-        self.scrollbar.pack(side="right", fill="y")
-
-        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
-
-    def _on_mousewheel(self, event):
-        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
 
 class App(customtkinter.CTk):
