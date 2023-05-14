@@ -1,1 +1,1 @@
-def upload_solves(self):
+gray

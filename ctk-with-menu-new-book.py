@@ -37,6 +37,39 @@ class Card(customtkinter.CTkFrame):
         self.label_image.pack()
 
 
+class ScrollableLabelButtonFrame(customtkinter.CTkScrollableFrame):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+        self.grid_columnconfigure(0, weight=1)
+
+        self.label_list = []
+        self.button_list = []
+
+    def add_item(self, item, image=None):
+        if image == None:
+            label = customtkinter.CTkLabel(
+                self, text=item, font=(tuple, 30), image=image, compound="left", padx=5, anchor="w")
+        else:
+            label = customtkinter.CTkLabel(
+                self, text=item, font=(tuple, 20), image=image, compound="left", padx=5, anchor="w")
+        # button = customtkinter.CTkButton(
+        #     self, text="Command", width=100, height=24)
+        label.grid(row=len(self.label_list),
+                   column=0, pady=(0, 10), sticky="w")
+        # button.grid(row=len(self.button_list), column=1, pady=(0, 10), padx=5)
+        self.label_list.append(label)
+        # self.button_list.append(button)
+
+    def remove_item(self, item):
+        for label, button in zip(self.label_list, self.button_list):
+            if item == label.cget("text"):
+                label.destroy()
+                button.destroy()
+                self.label_list.remove(label)
+                self.button_list.remove(button)
+                return
+
+
 class ScrollingFrame(customtkinter.CTkFrame):
     def __init__(self, master, images):
         super().__init__(master)
@@ -158,7 +191,7 @@ class App(customtkinter.CTk):
 
         # create listbox with your time
         self.listbox = tk.Listbox(
-            self.navigation_frame, width=15, height=25, font=(tuple, 15), background='gray14', borderwidth=0, highlightthickness=0, selectbackground='gray14', fg='white')
+            self.navigation_frame, width=15, height=25, font=(tuple, 15), background='gray20', borderwidth=0, highlightthickness=0, selectbackground='gray14', fg='white')
         self.listbox.grid(row=4, column=0, sticky="ew")
         self.scrollbar = tk.Scrollbar(self.navigation_frame)
         self.listbox.config(yscrollcommand=self.scrollbar.set)
@@ -166,24 +199,179 @@ class App(customtkinter.CTk):
         self.upload_solves()
 
         # create second frame
-        # self.second_frame = customtkinter.CTkFrame(
-        #     self, corner_radius=0, fg_color="dark_color")
+        self.second_frame = customtkinter.CTkFrame(
+            self, corner_radius=0, fg_color="transparent")
 
-        self.images = [{
-            "path": "rur.png", "text": "R U R'"}, {
-            "path": "fuf.png", "text": "F' U' F"}, {
-            "path": "urur.png", "text": "U R U' R'"}, {
-            "path": "ufuf.png", "text": "U' F' U F"}, {
-            "path": "urururur.png", "text": "(U' R U') (R' U R) U R'"}, {
-            "path": "ufufufuf.png", "text": "(U F' U) (F U' F') U' F"}, {
-            "path": "urururur'.png", "text": "(U' R U) (R' U R) U R'"}, {
-            "path": "ufufufuf'.png", "text": "(U F' U') (F U' F') U' F"}, {
-            "path": "dru2rdrur.png", "text": "d (R' U2 R) d' (R U R')"}, {
-            "path": "uru2rdrur.png", "text": "U' (R U2 R') d (R' U' R)"}]
+        self.images = [["rur.png", "R U R'"], ["fuf.png", "F' U' F"], ["urur.png", "U R U' R'"],
+                       ["ufuf.png", "U' F' U F"],
+                       ["urururur.png", "(U' R U') (R' U R) U R'"],
+                       ["ufufufuf.png", "(U F' U) (F U' F') U' F"],
+                       ["urururur'.png", "(U' R U) (R' U R) U R'"],
+                       ["ufufufuf'.png", "(U F' U') (F U' F') U' F"], [
+            "dru2rdrur.png", "d (R' U2 R) d' (R U R')"],
+            ["uru2rdrur.png", "U' (R U2 R') d (R' U' R)"], [
+            "rurudrur'.png", "(R U' R' U) d (R' U' R)"],
+            ["fufudfuf'.png", "(F' U F U') d' (F U F')"], [
+            "ufu2fufu2f'.png", "(U F' U2 F) (U F' U2 F)"],
+            ["uru2ruru2r'.png", "(U' R U2 R') (U' R U2 R')"], [
+            "ufufufu2f.png", "(U F' U' F) (U F' U2 F)"],
+            ["urururu2r'.png", "(U' R U R') (U' R U2 R')"],
+            ["ru2r'u'rur'.png", "(R U2 R' U') (R U R')"],
+            ["f'u2fuf'u'f.png", "(F' U2 F U) (F' U' F)"],
+            ["uru2r'uru'r'.png", "(U R U2 R') (U R U' R')"],
+            ["u'f'u2fu'f'uf.png", "(U' F' U2 F) (U' F' U F)"],
+            ["u2rur'uru'r'.png", "U2 (R U R' U) (R U' R')"],
+            ["u2f'u'fu'f'uf.png", "U2 (F' U' F U') (F' U F)"],
+            ["rur'u'u'rur'u'rur'.png", "(R U R' U') U' (R U R' U') (R U R')"],
+            ["y'r'u'ruur'u'rur'u'r.png",
+                "y' (R' U' R U) U (R' U' R U) (R' U' R)"],
+            ["uf'ufuf'u2f.png", "(U F' U F) (U F' U2 F)"],
+            ["u'ru'r'u'ru2r'.png", "(U' R U' R') (U' R U2 R')"],
+            ["uf'u'fd'fuf'.png", "(U F' U' F) (d' F U F')"],
+            ["u'rur'dr'u'r.png", "(U' R U R') (d R' U' R)"],
+            ["ru'r'dr'ur.png", "(R U' R') (d R' U R)"],
+            ["rur'u'rur'u'rur'.png", "(R U R' U') (R U R' U') (R U R')"],
+            ["uru'r'u'f'uf.png", "(U R U' R') (U' F' U F)"],
+            ["u'f'ufuru'r'.png", "(U' F' U F) (U R U' R')"],
+            ["f'ufu'f'uf.png", "(F' U F) (U' F' U F)"],
+            ["ru'r'uru'r'.png", "(R U' R') (U R U' R')"],
+            ["rur'u'rur'.png", "(R U R') (U' R U R')"],
+            ["f'u'fuf'u'f.png", "(F' U' F) (U F' U' F)"],
+            ["ru'r'uru2r'uru'r.png", "(R U' R' U) R U2 R' (U R U' R')"],
+            ["ru'r'u'rur'u'ru2r'.png", "(R U' R' U') (R U R' U') (R U2 R')"],
+            ["rur'u'ru'r'udr'u'r.png", "(R U R' U') (R U' R') U d (R' U' R)"],
+            ["ru'r'dr'u'ru'r'u'r.png", "(R U' R') d (R' U' R U') (R' U' R)"],
+            ["ru'r'dr'u2rur'u2r.png", "(R U' R' d R' U2 R) (U R' U2 R)"],
+            ["r'u2rur'ur.png", "(R' U2 R) U (R' U R)"],
+            ["ru2r'u'ru'r'.png", "(R U2 R') U' (R U' R')"],
+            ["f'rur'u'r'fr.png", "F' (r U R' U') (r' F R)"],
+            ["rur'u'r'frf'.png", "(r U R' U') (r' F R F')"],
+            ["ru2r2'u'r2u'r2'u2r.png", "R U2 (R2' U' R2 U') (R2' U2 R)"],
+            ["rur'uru'r'uru2r'.png", "(R U R') U (R U' R') U (R U2 R')"],
+            ["r2dr'u2rd'r'u2r'.png", "R2 D (R' U2 R) D' (R' U2 R')"],
+            ["ru2r'r'frf'u2r'frf'.png",
+                "(R U2 R') (R' F R F') U2 (R' F R F')"],
+            ["frur'u'f'frur'u'f'.png", "F (R U R' U') F' f (R U R' U') f'"],
+            ["frur'u'f'ufrur'u'f'.png", "f (R U R' U') f' U F (R U R' U') F'"],
+            ["frur'u'f'u'frur'u'f'.png",
+                "f (R U R' U') f' U' F (R U R' U') F'"],
+            ["murur'u'm'r'frf'.png", "M U (R U R' U') M' (R' F R F')"],
+            ["frur'uy'r'u2r'frf'.png", "F (R U R' U) y' R' U2 (R' F R F')"],
+            ["rur'ur'frf'u2r'frf'.png",
+                "(R U R' U) (R' F R F') U2 (R' F R F')"],
+            ["murur'u'm2uru'r'.png", "M U (R U R' U') M2 (U R U' r')"],
+            ["rur'u'm'uru'r'.png", "(R U R' U') M' (U R U' r')"],
+            ["m'u'mu2'm'u'm.png", "M' U' M U2' M' U' M"],
+            ["ru2'r2u'ru'r'u2frf'.png", "R U2 R2 (U' R U' R') U2 (F R F')"],
+            ["rur'urd'ru'r'f'.png", "(R U R' U) R d' R U' R' F'"],
+            ["frur'u'rur'u'f'.png", "f (R U R' U') (R U R' U') f'"],
+            ["frur'u'rf'rur'u'r'.png", "F (R U R' U') R F' (r U R' U') r'"],
+            ["frur'u'f'.png", "F (R U R' U') F'"],
+            ["rur'u'r'frf''.png", "(R U R' U') (R' F R F')"],
+            ["r'frur'u'f'ur.png", "R' F (R U R' U') F' U R"],
+            ["lf'l'u'lufu'l'.png", "L F' (L' U' L U) F U' L'"],
+            ["r'frur'f'ry'ru'r'.png", "(R' F R) U (R' F' R) y' (R U' R')"],
+            ["furu'r2f'ruru'r'.png", "F (U R U' R2) F' (R U R U' R')"],
+            ["rur'rur'u'ru'r'.png", "r U r' (R U R' U') r U' r'"],
+            ["i'u'i;'u';ui'ui.png", "l' U' l (L' U' L U) l' U l"],
+            ["r'u'r'frf'ur.png", "R' U' (R' F R F') U R"],
+            ["rur'u'xd'r'uru'dx'.png", "(R U R' U') x D' R' U R U' D x'"],
+            ["rur'uru'r'u'r'frf'.png", "(R U R' U) (R U' R' U') (R' F R F')"],
+            ["l'u'lu'l'ululf'l'f.png", "(L' U' L U') (L' U L U) (L F' L' F)"],
+            ["frur'u'f''.png", "f (R U R' U') f'"],
+            ["f'l'u'luf.png", "f' (L' U' L U) f"],
+            ["r'u'furu'r'f'r.png", "R' U' F U R U' R' F' R"],
+            ["furu'f'rur'u'r'.png", "F U R U' F' r U R' U' r'"],
+            ["ru2r'r'frf'ru2r'.png", "(R U2 R') (R' F R F') (R U2 R')"],
+            ["fr'f'ruru'r'.png", "F R' F' R U R U' R'"],
+            ["r'u2rur'ur''.png", "r' U2 (R U R' U) r"],
+            ["ru2r'u'ru'r''.png", "r U2 R' U' R U' r'"],
+            ["frur'u'rur'u'f''.png", "F (R U R' U') (R U R' U') F'"],
+            ["f'l'u'lul'u'luf.png", "F' (L' U' L U) (L' U' L U) F"],
+            ["r'fr2b'r2'f'r2br'.png", "R' F R2 B' R2' F' R2 B R'"],
+            ["r'fr'f'r2u2yr'frf'.png", "(R' F R' F') R2 U2 y (R' F R F')"],
+            ["l'u'lu'l'ulu'l'u2l.png", "(l' U' L U') (L' U L U') L' U2 l"],
+            ["rur'uru'r'uru2'r'.png", "(r U R' U) (R U' R' U) R U2' r'"],
+            ["f'l'u'lufyfrur'u2'f'.png",
+                "F' (L' U' L U) F y F (R U R' U') F'"],
+            ["frur'u'f'ufrur'u'f''.png",
+                "F (R U R' U') F' U F (R U R' U') F'"],
+            ["rur'uru2r'.png", "(r U R' U) R U2 r'"],
+            ["r'u'ru'r'u2r.png", "r' U' R U' R' U2 r"],
+            ["rur'ur'frf'ru2r'.png", "(R U R' U) (R' F R F') R U2 R'"],
+            ["rur'u'r'fr2ur'u'f'.png", "(R U R' U') R' F R2 U R' U' F'"],
+            ["rur'u'ru'r'f'u'frur'.png",
+                "(R U R' U') R U' R' F' U' (F R U R')"],
+            ["r'frf'r'frf'rur'u'rur'.png",
+                "(R' F R F') (R' F R F') (R U R' U') (R U R')"],
+            ["rur'uru2r'frur'u'f'.png", "(R U R' U) R U2 R' F (R U R' U') F'"],
+            ["lf'l'fl'u2ldrur'.png", "(L F' L' F) L' U2 L d (R U R')"],
+            ["m2um2u2m2um2.png", "(M2 U M2) U2 (M2 U M2)"],
+            ["r'u'r2urur'u'ruru'ru'r'u2.png",
+                "R' U' R2 U (R U R' U') R U R U' R U' R' U2"],
+            ["r2u'r'u'rururu'r.png", "R2 U' (R' U' R) U R U (R U' R)"],
+            ["r'ur'u'r'u'r'urur2.png", "(R' U R' U') R' U' (R' U R) U R2"],
+            ["xz'r2u2r'd'ru2r'dr'zx'.png",
+                "x z' R2 U2 (R' D' R) U2 (R' D R') z x'"],
+            ["xr2d2rur'd2ru'rx'.png", "x R2 D2 (R U R') D2 (R U' R) x'"],
+            ["r2ur'u'yrur'u'rur'u'rur'y'ru'r2'.png",
+                "R2 U R' U' y (R U R' U') (R U R' U') (R U R') y' (R U' R2')"],
+            ["rur'u'r'fr2u'r'u'rur'f'.png",
+                "(R U R' U') R' F R2 U' R' U' R U R' F'"],
+            ["fru'r'u'rur'f'rur'u'r'frf'.png",
+                "(F R U' R') U' (R U R' F') (R U R' U') (R' F R F')"],
+            ["u'r'uru'r2f'u'fuxrur'u'r2x'.png",
+                "U' (R' U R U') R2 (F' U' F U) x (R U R' U') R2 x'"],
+            ["r'ur'u'yr'dr'd'r2y2'r'b'rbr.png",
+                "(R' U R' U') y (R' D R' D') R2 y' (R' B' R B R)"],
+            ["l'u'lfl'u'lulf'l2ulu.png",
+                "L' U' L F (L' U' L U) L F' L2 U L U"],
+            ["ruru'f'rur'u'r'fr2u'r'u'.png",
+                "R U R' F' (R U R' U') R' F R2 U' R' U'"],
+            ["lu2l'u2lf'l'u'lulfl2u.png",
+                "(L U2 L') U2 L F' (L' U' L U) L F L2 U"],
+            ["r'u2ru2r'frur'u'r'f'r2u'.png",
+                "(R' U2 R) U2 R' F (R U R' U') R' F' R2 U'"],
+            ["rur'urur'f'rur'u'r'fr2u'r'u2ru'r'.png",
+                "(R U R' U) (R U R' F') (R U R' U') R' F R2 U' R' U2 (R U' R')"],
+            ["r'uru'r'f'u'frur'fr'f'ru'r.png",
+                "(R' U R U') R' (F' U' F) (R U R' F) R' F' (R U' R)"],
+            ["yr2'ur'ur'u'ru'r2y'r'ur.png",
+                "y R2' u (R' U R' U') (R u' R2) y' (R' U R)"],
+            ["r'u'ryr2ur'uru'ru'r2.png",
+                "(R' U' R) y R2 u (R' U R U') (R u' R2)"],
+            ["yr2'u'ru'rur'ur2yru'r'.png",
+                "y R2' u' R U' (R U R' u) R2 y (R U' R')"],
+            ["y2rur'y'r2u'ru'r'ur'ur2.png",
+                "y2 (R U R') y' (R2 u' R) U' (R' U R') u R2"]
+        ]
+        self.titles = ["F2L", "1. Basic cases", "2. Corner and edge in top", "3. Corner pointing up, edge in top",
+                       "4. Corner in top, edge in middle", "5. Corner in bottom, edge in top", "6. Corner in bottom, edge in middle", "OLL", "Crosses", "Dots", "All Corners", "Lines", "Ts", "Zs", "Big Ls", "Cs", "Ws", "Ps", "Squares", "Little Ls", "Other shapes", "PLL", "Edges only", "Corners only", "Edges and corners"]
 
-        self.second_frame = ScrollingFrame(self, self.images)
-        # self.scrolling_frame = ScrollingFrame(self.second_frame, self.images)
-        # self.scrolling_frame.pack(expand=True, fill="both")
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+
+        self.scrollable_label_button_frame = ScrollableLabelButtonFrame(
+            self.second_frame, corner_radius=0)
+        self.scrollable_label_button_frame.pack(expand=True, fill="both")
+
+        self.title_index = 0
+
+        self.scrollable_label_button_frame.add_item(
+            self.titles[self.title_index], image=None)
+        self.title_index += 1
+
+        for i in range(len(self.images)):
+            if i in [0, 4, 16, 24, 30, 36, 41, 48, 56, 58, 62, 64, 66, 70, 72, 74, 78, 82, 88, 98, 102, 105]:
+                if i in [41, 98]:
+                    self.scrollable_label_button_frame.add_item(
+                        self.titles[self.title_index], image=None)
+                    self.title_index += 1
+                self.scrollable_label_button_frame.add_item(
+                    self.titles[self.title_index], image=None)
+                self.title_index += 1
+            self.scrollable_label_button_frame.add_item(self.images[i][1], image=customtkinter.CTkImage(
+                Image.open(os.path.join(current_dir, "rubik", self.images[i][0])), size=(80, 80)))
+            print(i)
 
         # create third frame
         self.third_frame = customtkinter.CTkFrame(
@@ -303,6 +491,15 @@ class App(customtkinter.CTk):
     # func to change theme
     def change_appearance_mode_event(self, new_appearance_mode):
         customtkinter.set_appearance_mode(new_appearance_mode)
+        if customtkinter.get_appearance_mode() == "Light":
+            self.listbox.config(background='gray90', fg='black')
+        elif customtkinter.get_appearance_mode() == "System":
+            if customtkinter.get_appearance_mode() == "Light":
+                self.listbox.config(background='gray90', fg='black')
+            else:
+                self.listbox.config(background='gray20', fg='white')
+        else:
+            self.listbox.config(background='gray20', fg='white')
 
 
 if __name__ == "__main__":
