@@ -1,9 +1,10 @@
-import tkinter as tk
-import customtkinter
 import os
-from PIL import Image
 import random
 import time
+import tkinter as tk
+
+import customtkinter
+from PIL import Image
 
 
 class ScrambleGenerator:

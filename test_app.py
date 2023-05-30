@@ -1,5 +1,6 @@
 import unittest
-from app import ScrambleGenerator, App
+
+from app import App, ScrambleGenerator
 
 
 class TestApp(unittest.TestCase):
